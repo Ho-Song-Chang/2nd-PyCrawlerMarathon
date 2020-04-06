@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from pprint import pprint
 
-# ç¯„ä¾‹ç›®æ¨™ç¶²å€: https://www.ptt.cc/bbs/Gossiping/M.1557928779.A.0C1.html
+# ¹ ÀıÄ¿˜Ë¾WÖ·: https://www.ptt.cc/bbs/Gossiping/M.1557928779.A.0C1.html
 class PttcrawlerSpider(scrapy.Spider):
     name = 'PTTCrawler'
     allowed_domains = ['www.ptt.cc']
@@ -17,19 +17,19 @@ class PttcrawlerSpider(scrapy.Spider):
             yield scrapy.Request(url=url, callback=self.parse, cookies=self.cookies)
 
     def parse(self, response):
-        # å‡è¨­ç¶²é å›æ‡‰ä¸æ˜¯ 200 OK çš„è©±, æˆ‘å€‘è¦–ç‚ºå‚³é€è«‹æ±‚å¤±æ•—
+        # ¼ÙÔO¾Wí“»Ø‘ª²»ÊÇ 200 OK µÄÔ’, ÎÒ‚ƒÒ•é‚÷ËÍÕˆÇóÊ§”¡
         if response.status != 200:
             print('Error - {} is not available to access'.format(response.url))
             return
 
-        # å°‡ç¶²é å›æ‡‰çš„ HTML å‚³å…¥ BeautifulSoup è§£æå™¨, æ–¹ä¾¿æˆ‘å€‘æ ¹æ“šæ¨™ç±¤ (tag) è³‡è¨Šå»éæ¿¾å°‹æ‰¾
+        # Œ¢¾Wí“»Ø‘ªµÄ HTML ‚÷Èë BeautifulSoup ½âÎöÆ÷, ·½±ãÎÒ‚ƒ¸ù“ş˜Ë»` (tag) ÙYÓÈ¥ß^VŒ¤ÕÒ
         soup = BeautifulSoup(response.text)
 
         
-        # å–å¾—æ–‡ç« å…§å®¹ä¸»é«”
+        # È¡µÃÎÄÕÂƒÈÈİÖ÷ów
         main_content = soup.find(id='main-content')
         
-        # å‡å¦‚æ–‡ç« æœ‰å±¬æ€§è³‡æ–™ (meta), æˆ‘å€‘åœ¨å¾å±¬æ€§çš„å€å¡Šä¸­çˆ¬å‡ºä½œè€… (author), æ–‡ç« æ¨™é¡Œ (title), ç™¼æ–‡æ—¥æœŸ (date)
+        # ¼ÙÈçÎÄÕÂÓĞŒÙĞÔÙYÁÏ (meta), ÎÒ‚ƒÔÚÄŒÙĞÔµÄ…^‰KÖĞÅÀ³ö×÷Õß (author), ÎÄÕÂ˜Ëî} (title), °lÎÄÈÕÆÚ (date)
         metas = main_content.select('div.article-metaline')
         author = ''
         title = ''
@@ -42,90 +42,90 @@ class PttcrawlerSpider(scrapy.Spider):
             if metas[2].select('span.article-meta-value')[0]:
                 date = metas[2].select('span.article-meta-value')[0].string
 
-            # å¾ main_content ä¸­ç§»é™¤ meta è³‡è¨Šï¼ˆauthor, title, date èˆ‡å…¶ä»–çœ‹æ¿è³‡è¨Šï¼‰
+            # Ä main_content ÖĞÒÆ³ı meta ÙYÓ£¨author, title, date ÅcÆäËû¿´°åÙYÓ£©
             #
-            # .extract() æ–¹æ³•å¯ä»¥åƒè€ƒå®˜æ–¹æ–‡ä»¶
+            # .extract() ·½·¨¿ÉÒÔ…¢¿¼¹Ù·½ÎÄ¼ş
             #  - https://www.crummy.com/software/BeautifulSoup/bs4/doc/#extract
             for m in metas:
                 m.extract()
             for m in main_content.select('div.article-metaline-right'):
                 m.extract()
         
-        # å–å¾—ç•™è¨€å€ä¸»é«”
+        # È¡µÃÁôÑÔ…^Ö÷ów
         pushes = main_content.find_all('div', class_='push')
         for p in pushes:
             p.extract()
         
-        # å‡å¦‚æ–‡ç« ä¸­æœ‰åŒ…å«ã€Œâ€» ç™¼ä¿¡ç«™: æ‰¹è¸¢è¸¢å¯¦æ¥­åŠ(ptt.cc), ä¾†è‡ª: xxx.xxx.xxx.xxxã€çš„æ¨£å¼
-        # é€é regular expression å–å¾— IP
-        # å› ç‚ºå­—ä¸²ä¸­åŒ…å«ç‰¹æ®Šç¬¦è™Ÿè·Ÿä¸­æ–‡, é€™é‚Šå»ºè­°ä½¿ç”¨ unicode çš„å‹å¼ u'...'
+        # ¼ÙÈçÎÄÕÂÖĞÓĞ°üº¬¡¸¡ù °lĞÅÕ¾: ÅúÌßÌßŒ˜I·»(ptt.cc), í×Ô: xxx.xxx.xxx.xxx¡¹µÄ˜ÓÊ½
+        # Í¸ß^ regular expression È¡µÃ IP
+        # Òòé×Ö´®ÖĞ°üº¬ÌØÊâ·ûÌ–¸úÖĞÎÄ, ß@ß…½¨×hÊ¹ÓÃ unicode µÄĞÍÊ½ u'...'
         try:
-            ip = main_content.find(text=re.compile(u'â€» ç™¼ä¿¡ç«™:'))
+            ip = main_content.find(text=re.compile(u'¡ù °lĞÅÕ¾:'))
             ip = re.search('[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*', ip).group()
         except Exception as e:
             ip = ''
         
-        # ç§»é™¤æ–‡ç« ä¸»é«”ä¸­ 'â€» ç™¼ä¿¡ç«™:', 'â—† From:', ç©ºè¡ŒåŠå¤šé¤˜ç©ºç™½ (â€» = u'\u203b', â—† = u'\u25c6')
-        # ä¿ç•™è‹±æ•¸å­—, ä¸­æ–‡åŠä¸­æ–‡æ¨™é», ç¶²å€, éƒ¨åˆ†ç‰¹æ®Šç¬¦è™Ÿ
+        # ÒÆ³ıÎÄÕÂÖ÷ówÖĞ '¡ù °lĞÅÕ¾:', '¡ô From:', ¿ÕĞĞ¼°¶àğN¿Õ°× (¡ù = u'\u203b', ¡ô = u'\u25c6')
+        # ±£ÁôÓ¢”µ×Ö, ÖĞÎÄ¼°ÖĞÎÄ˜Ëüc, ¾WÖ·, ²¿·ÖÌØÊâ·ûÌ–
         #
-        # é€é .stripped_strings çš„æ–¹å¼å¯ä»¥å¿«é€Ÿç§»é™¤å¤šé¤˜ç©ºç™½ä¸¦å–å‡ºæ–‡å­—, å¯åƒè€ƒå®˜æ–¹æ–‡ä»¶ 
+        # Í¸ß^ .stripped_strings µÄ·½Ê½¿ÉÒÔ¿ìËÙÒÆ³ı¶àğN¿Õ°×KÈ¡³öÎÄ×Ö, ¿É…¢¿¼¹Ù·½ÎÄ¼ş 
         #  - https://www.crummy.com/software/BeautifulSoup/bs4/doc/#strings-and-stripped-strings
         filtered = []
         for v in main_content.stripped_strings:
-            # å‡å¦‚å­—ä¸²é–‹é ­ä¸æ˜¯ç‰¹æ®Šç¬¦è™Ÿæˆ–æ˜¯ä»¥ '--' é–‹é ­çš„, æˆ‘å€‘éƒ½ä¿ç•™å…¶æ–‡å­—
-            if v[0] not in [u'â€»', u'â—†'] and v[:2] not in [u'--']:
+            # ¼ÙÈç×Ö´®é_î^²»ÊÇÌØÊâ·ûÌ–»òÊÇÒÔ '--' é_î^µÄ, ÎÒ‚ƒ¶¼±£ÁôÆäÎÄ×Ö
+            if v[0] not in [u'¡ù', u'¡ô'] and v[:2] not in [u'--']:
                 filtered.append(v)
 
-        # å®šç¾©ä¸€äº›ç‰¹æ®Šç¬¦è™Ÿèˆ‡å…¨å½¢ç¬¦è™Ÿçš„éæ¿¾å™¨
-        expr = re.compile(u'[^ä¸€-é¾¥ã€‚ï¼›ï¼Œï¼šâ€œâ€ï¼ˆï¼‰ã€ï¼Ÿã€Šã€‹\s\w:/-_.?~%()]')
+        # ¶¨ÁxÒ»Ğ©ÌØÊâ·ûÌ–ÅcÈ«ĞÎ·ûÌ–µÄß^VÆ÷
+        expr = re.compile(u'[^Ò»-ı›¡££»£¬£º¡°¡±£¨£©¡¢£¿¡¶¡·\s\w:/-_.?~%()]')
         for i in range(len(filtered)):
             filtered[i] = re.sub(expr, '', filtered[i])
         
-        # ç§»é™¤ç©ºç™½å­—ä¸², çµ„åˆéæ¿¾å¾Œçš„æ–‡å­—å³ç‚ºæ–‡ç« æœ¬æ–‡ (content)
+        # ÒÆ³ı¿Õ°××Ö´®, ½MºÏß^VááµÄÎÄ×Ö¼´éÎÄÕÂ±¾ÎÄ (content)
         filtered = [i for i in filtered if i]
         content = ' '.join(filtered)
         
-        # è™•ç†ç•™è¨€å€
-        # p è¨ˆç®—æ¨æ–‡æ•¸é‡
-        # b è¨ˆç®—å™“æ–‡æ•¸é‡
-        # n è¨ˆç®—ç®­é ­æ•¸é‡
+        # ÌÀíÁôÑÔ…^
+        # p Ó‹ËãÍÆÎÄ”µÁ¿
+        # b Ó‹Ëã‡uÎÄ”µÁ¿
+        # n Ó‹Ëã¼ıî^”µÁ¿
         p, b, n = 0, 0, 0
         messages = []
         for push in pushes:
-            # å‡å¦‚ç•™è¨€æ®µè½æ²’æœ‰ push-tag å°±è·³é
+            # ¼ÙÈçÁôÑÔ¶ÎÂä›]ÓĞ push-tag ¾ÍÌøß^
             if not push.find('span', 'push-tag'):
                 continue
             
-            # éæ¿¾é¡å¤–ç©ºç™½èˆ‡æ›è¡Œç¬¦è™Ÿ
-            # push_tag åˆ¤æ–·æ˜¯æ¨æ–‡, ç®­é ­é‚„æ˜¯å™“æ–‡
-            # push_userid åˆ¤æ–·ç•™è¨€çš„äººæ˜¯èª°
-            # push_content åˆ¤æ–·ç•™è¨€å…§å®¹
-            # push_ipdatetime åˆ¤æ–·ç•™è¨€æ—¥æœŸæ™‚é–“
+            # ß^Vî~Íâ¿Õ°×Åc“QĞĞ·ûÌ–
+            # push_tag ÅĞ”àÊÇÍÆÎÄ, ¼ıî^ß€ÊÇ‡uÎÄ
+            # push_userid ÅĞ”àÁôÑÔµÄÈËÊÇÕl
+            # push_content ÅĞ”àÁôÑÔƒÈÈİ
+            # push_ipdatetime ÅĞ”àÁôÑÔÈÕÆÚ•rég
             push_tag = push.find('span', 'push-tag').string.strip(' \t\n\r')
             push_userid = push.find('span', 'push-userid').string.strip(' \t\n\r')
             push_content = push.find('span', 'push-content').strings
             push_content = ' '.join(push_content)[1:].strip(' \t\n\r')
             push_ipdatetime = push.find('span', 'push-ipdatetime').string.strip(' \t\n\r')
 
-            # æ•´ç†æ‰“åŒ…ç•™è¨€çš„è³‡è¨Š, ä¸¦çµ±è¨ˆæ¨å™“æ–‡æ•¸é‡
+            # ÕûÀí´ò°üÁôÑÔµÄÙYÓ, K½yÓ‹ÍÆ‡uÎÄ”µÁ¿
             messages.append({
                 'push_tag': push_tag,
                 'push_userid': push_userid,
                 'push_content': push_content,
                 'push_ipdatetime': push_ipdatetime})
-            if push_tag == u'æ¨':
+            if push_tag == u'ÍÆ':
                 p += 1
-            elif push_tag == u'å™“':
+            elif push_tag == u'‡u':
                 b += 1
             else:
                 n += 1
         
-        # çµ±è¨ˆæ¨å™“æ–‡
-        # count ç‚ºæ¨å™“æ–‡ç›¸æŠµçœ‹é€™ç¯‡æ–‡ç« æ¨æ–‡é‚„æ˜¯å™“æ–‡æ¯”è¼ƒå¤š
-        # all ç‚ºç¸½å…±ç•™è¨€æ•¸é‡ 
+        # ½yÓ‹ÍÆ‡uÎÄ
+        # count éÍÆ‡uÎÄÏàµÖ¿´ß@ÆªÎÄÕÂÍÆÎÄß€ÊÇ‡uÎÄ±Èİ^¶à
+        # all é¿‚¹²ÁôÑÔ”µÁ¿ 
         message_count = {'all': p+b+n, 'count': p-b, 'push': p, 'boo': b, 'neutral': n}
         
-        # æ•´ç†æ–‡ç« è³‡è¨Š
+        # ÕûÀíÎÄÕÂÙYÓ
         data = {
             'url': response.url,
             'article_author': author,
